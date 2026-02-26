@@ -1,0 +1,30 @@
+# Large data and binary files - do not push to GitHub
+data/
+genome/
+resources/
+
+# Large result files
+results/03_alignment/
+results/04_alignQC/samstats/multiqc_data/
+
+# BAM, FASTQ, index files
+*.bam
+*.bai
+*.fastq
+*.fastq.gz
+*.fq
+*.fq.gz
+*.vcf.gz
+*.tbi
+*.fasta
+*.fai
+*.dict
+
+# Temp files
+*.tmp
+*.log
+
+# Keep scripts and results summaries
+!scripts/
+!results/
+!README.md
