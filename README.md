@@ -1,4 +1,4 @@
-# CRC-WES-Somatic-Variant-Analysis
+# ISG Final Project
 
 ## Project Overview
 Re-analysis of publicly available whole-exome sequencing (WES) data from 18 
@@ -53,9 +53,9 @@ Raw FASTQ files downloaded from NCBI SRA
 - Databases: RefGene, COSMIC, ClinVar, dbSNP, gnomAD
 
 ## Repository Structure
-- data/            Raw FASTQ files (not tracked by git)
-- genome/          hg38 reference genome (not tracked by git)
-- resources/       gnomAD and Panel of Normals VCFs (not tracked by git)
+- data/            Raw FASTQ files 
+- genome/          hg38 reference genome 
+- resources/       gnomAD and Panel of Normals VCFs
 - results/         Output files from each analysis step
 - scripts/         All numbered analysis scripts and SLURM logs
 - README.md        This file
@@ -70,9 +70,3 @@ Raw FASTQ files downloaded from NCBI SRA
 - GATK v4.3
 - ANNOVAR (latest)
 - MultiQC v1.12
-
-## Author
-Stephanie Ballas
-ISG5312 - Genomic Analysis II
-University of Connecticut
-Spring 2026
