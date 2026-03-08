@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # ISG5312 Final Project
 
 Reproduction of selected computational figures from Minami et al. (2023), *Cell* 41(6):1048–1060. The paper identifies CDKN2A deletion as the major driver of lipid metabolic reprogramming in glioblastoma (GBM), and shows that CDKN2A-null tumors are selectively primed for ferroptosis via GPX4 inhibition.
