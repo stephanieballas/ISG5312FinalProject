@@ -1,13 +1,9 @@
-# Large data and binary files - do not push to GitHub
+# Large data files - never push these
 data/
 genome/
 resources/
 
-# Large result files
-results/03_alignment/
-results/04_alignQC/samstats/multiqc_data/
-
-# BAM, FASTQ, index files
+# Large binary result files
 *.bam
 *.bai
 *.fastq
@@ -17,14 +13,13 @@ results/04_alignQC/samstats/multiqc_data/
 *.vcf.gz
 *.tbi
 *.fasta
+*.fa
 *.fai
 *.dict
-
-# Temp files
 *.tmp
-*.log
+*.tar.gz
 
-# Keep scripts and results summaries
+# Keep everything else (scripts, logs, summaries, QC reports)
 !scripts/
 !results/
 !README.md
