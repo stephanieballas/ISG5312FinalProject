@@ -18,14 +18,21 @@ REF=${GENOME_DIR}/CanFam3.1.fa
 
 cd ${GENOME_DIR}
 
-echo "Downloading CanFam3.1 reference genome..."
-wget "https://ftp.ensembl.org/pub/release-111/fasta/canis_lupus_familiaris/dna/Canis_lupus_familiaris.CanFam3.1.dna.toplevel.fa.gz"
+echo "Downloading CanFam3.1 reference genome using curl..."
+curl -o Canis_lupus_familiaris.CanFam3.1.dna.toplevel.fa.gz \
+    "https://ftp.ensembl.org/pub/release-104/fasta/canis_lupus_familiaris/dna/Canis_lupus_familiaris.CanFam3.1.dna.toplevel.fa.gz"
+
+echo "Checking download..."
+ls -lh Canis_lupus_familiaris.CanFam3.1.dna.toplevel.fa.gz
 
 echo "Decompressing..."
 gunzip Canis_lupus_familiaris.CanFam3.1.dna.toplevel.fa.gz
 
 echo "Renaming..."
 mv Canis_lupus_familiaris.CanFam3.1.dna.toplevel.fa CanFam3.1.fa
+
+echo "Checking genome file..."
+ls -lh CanFam3.1.fa
 
 echo "Creating samtools fai index..."
 samtools faidx ${REF}
