@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=bwa_index
-#SBATCH --output=scripts/03_alignment/bwa_index_%j.out
-#SBATCH --error=scripts/03_alignment/bwa_index_%j.err
+#SBATCH --output=/scratch/sballas/ISG5312FinalProject/scripts/03_alignment/bwa_index_%j.out
+#SBATCH --error=/scratch/sballas/ISG5312FinalProject/scripts/03_alignment/bwa_index_%j.err
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=32G
@@ -19,7 +19,7 @@ REF=${GENOME_DIR}/CanFam3.1.fa
 cd ${GENOME_DIR}
 
 echo "Downloading CanFam3.1 reference genome..."
-wget "https://ftp.ensembl.org/pub/release-104/fasta/canis_lupus_familiaris/dna/Canis_lupus_familiaris.CanFam3.1.dna.toplevel.fa.gz"
+wget "https://ftp.ensembl.org/pub/release-111/fasta/canis_lupus_familiaris/dna/Canis_lupus_familiaris.CanFam3.1.dna.toplevel.fa.gz"
 
 echo "Decompressing..."
 gunzip Canis_lupus_familiaris.CanFam3.1.dna.toplevel.fa.gz

@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=alignQC
-#SBATCH --output=scripts/04_alignQC/alignQC_%A_%a.out
-#SBATCH --error=scripts/04_alignQC/alignQC_%A_%a.err
+#SBATCH --output=/scratch/sballas/ISG5312FinalProject/scripts/04_alignQC/alignQC_%A_%a.out
+#SBATCH --error=/scratch/sballas/ISG5312FinalProject/scripts/04_alignQC/alignQC_%A_%a.err
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=2
 #SBATCH --mem=16G

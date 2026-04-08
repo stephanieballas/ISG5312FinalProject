@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=markdup
-#SBATCH --output=scripts/03_alignment/markdup_%A_%a.out
-#SBATCH --error=scripts/03_alignment/markdup_%A_%a.err
+#SBATCH --output=/scratch/sballas/ISG5312FinalProject/scripts/03_alignment/markdup_%A_%a.out
+#SBATCH --error=/scratch/sballas/ISG5312FinalProject/scripts/03_alignment/markdup_%A_%a.err
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=32G
