@@ -17,7 +17,7 @@ INDIR=${PROJ}/results/03_alignment/bwa_align
 TMPDIR=/scratch/sballas/tmp
 mkdir -p ${TMPDIR}
 
-SAMPLES=(SRR11352526 SRR11352527)
+SAMPLES=(SRR11352526 SRR11392159)
 
 SAMPLE=${SAMPLES[$((SLURM_ARRAY_TASK_ID - 1))]}
 
@@ -25,7 +25,7 @@ echo "Marking duplicates: ${SAMPLE}"
 
 gatk MarkDuplicates \
     --INPUT  ${INDIR}/${SAMPLE}.sorted.bam \
-    --OUTPUT ${INDIR}/${SAMPLE}.markdup.bam \
+    --OUTPUT  ${INDIR}/${SAMPLE}.markdup.bam \
     --METRICS_FILE ${INDIR}/${SAMPLE}.markdup.metrics.txt \
     --TMP_DIR ${TMPDIR} \
     --CREATE_INDEX true \
