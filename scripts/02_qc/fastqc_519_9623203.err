@@ -24,3 +24,29 @@ Approx 55% complete for SRR11352519_1_trimmed.fastq.gz
 Approx 55% complete for SRR11352519_2_trimmed.fastq.gz
 Approx 60% complete for SRR11352519_1_trimmed.fastq.gz
 Approx 60% complete for SRR11352519_2_trimmed.fastq.gz
+Approx 65% complete for SRR11352519_1_trimmed.fastq.gz
+Approx 65% complete for SRR11352519_2_trimmed.fastq.gz
+Approx 70% complete for SRR11352519_1_trimmed.fastq.gz
+Approx 70% complete for SRR11352519_2_trimmed.fastq.gz
+Approx 75% complete for SRR11352519_1_trimmed.fastq.gz
+Approx 75% complete for SRR11352519_2_trimmed.fastq.gz
+Approx 80% complete for SRR11352519_1_trimmed.fastq.gz
+Approx 80% complete for SRR11352519_2_trimmed.fastq.gz
+Approx 85% complete for SRR11352519_1_trimmed.fastq.gz
+Approx 85% complete for SRR11352519_2_trimmed.fastq.gz
+Approx 90% complete for SRR11352519_1_trimmed.fastq.gz
+Approx 90% complete for SRR11352519_2_trimmed.fastq.gz
+Approx 95% complete for SRR11352519_1_trimmed.fastq.gz
+Approx 95% complete for SRR11352519_2_trimmed.fastq.gz
+Failed to process file SRR11352519_1_trimmed.fastq.gz
+uk.ac.babraham.FastQC.Sequence.SequenceFormatException: Ran out of data in the middle of a fastq entry.  Your file is probably truncated
+	at uk.ac.babraham.FastQC.Sequence.FastQFile.readNext(FastQFile.java:187)
+	at uk.ac.babraham.FastQC.Sequence.FastQFile.next(FastQFile.java:129)
+	at uk.ac.babraham.FastQC.Analysis.AnalysisRunner.run(AnalysisRunner.java:77)
+	at java.lang.Thread.run(Thread.java:748)
+Failed to process file SRR11352519_2_trimmed.fastq.gz
+uk.ac.babraham.FastQC.Sequence.SequenceFormatException: Ran out of data in the middle of a fastq entry.  Your file is probably truncated
+	at uk.ac.babraham.FastQC.Sequence.FastQFile.readNext(FastQFile.java:187)
+	at uk.ac.babraham.FastQC.Sequence.FastQFile.next(FastQFile.java:129)
+	at uk.ac.babraham.FastQC.Analysis.AnalysisRunner.run(AnalysisRunner.java:77)
+	at java.lang.Thread.run(Thread.java:748)
