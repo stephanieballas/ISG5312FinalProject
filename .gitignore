@@ -26,3 +26,9 @@ resources/
 # SLURM log files
 *.out
 *.err
+# Alignment metrics and stats files
+*.flagstat.txt
+*.samstats.txt
+*.alignment_metrics.txt
+*.markdup.metrics.txt
+*.vcf.gz.stats
