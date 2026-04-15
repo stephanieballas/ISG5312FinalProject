@@ -35,7 +35,7 @@ SAMPLES=(
 )
 
 SAMPLE=${SAMPLES[$((SLURM_ARRAY_TASK_ID - 1))]}
-BAM=${BAMDIR}/${SAMPLE}.bqsr.bam
+BAM=${BAMDIR}/${SAMPLE}.markdup.bam
 
 echo "Alignment QC for: ${SAMPLE}"
 
