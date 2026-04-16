@@ -13,7 +13,7 @@
 module load snpEff/4.3q
 
 PROJ=/scratch/sballas/ISG5312FinalProject
-VCFDIR=${PROJ}/results/05_variantCalling/mutect2
+VCFDIR=${PROJ}/results/05_variantCalling/filtered
 OUTDIR=${PROJ}/results/07_annotation/snpeff
 PAIRS=${PROJ}/scripts/05_variantCalling/tumor_normal_pairs.txt
 SNPEFF_JAR=/isg/shared/apps/snpEff/4.3q/snpEff.jar
@@ -25,17 +25,15 @@ TUMOR=$(echo  ${PAIR_LINE} | awk '{print $1}')
 NORMAL=$(echo ${PAIR_LINE} | awk '{print $2}')
 PAIR_NAME="${TUMOR}_vs_${NORMAL}"
 
-VCF=${VCFDIR}/${PAIR_NAME}.PASS.vcf.gz
-OUTVCF=${OUTDIR}/${PAIR_NAME}.annotated.vcf
-STATS=${OUTDIR}/${PAIR_NAME}.snpeff_stats.html
-
 echo "Annotating: ${PAIR_NAME}"
-
 java -Xmx12g -jar ${SNPEFF_JAR} \
     -v \
-    -stats ${STATS} \
+    -stats ${OUTDIR}/${PAIR_NAME}.snpeff_stats.html \
     CanFam3.1.86 \
-    ${VCF} \
-    > ${OUTVCF}
+    ${VCFDIR}/${PAIR_NAME}.PASS.vcf.gz \
+    > ${OUTDIR}/${PAIR_NAME}.annotated.vcf
+
+bgzip ${OUTDIR}/${PAIR_NAME}.annotated.vcf
+tabix -p vcf ${OUTDIR}/${PAIR_NAME}.annotated.vcf.gz
 
 echo "Done: ${PAIR_NAME}"
