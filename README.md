@@ -1,4 +1,4 @@
-# ISG5312 Final Project
+# ISG5312 Final Project — Spring 2026
 ## Somatic Variant Calling in Canine Osteosarcoma
 ### Reproduction of Das et al. (2021), *Communications Biology* 4:1178
 
@@ -251,6 +251,8 @@ Annotated VCFs will be converted to MAF format and analyzed in R using `maftools
 7. **Three corrupted BAM files:** Samples SRR11352526, SRR11352527, and SRR11392159 produced corrupted BAM files as a result of the disk space failure above. These required full re-alignment after the concurrency issue was resolved. All three were successfully re-aligned and verified before downstream processing.
 
 8. **Scale of the dataset:** Working with 52 samples meant that any scripting error — even minor ones — required identifying the problem, correcting the script, and resubmitting the full array before the pipeline could continue. This added significant debugging time at nearly every step.
+
+9. **Mutect2 timeouts:** 6 of 26 tumor-normal pairs exceeded the initial 24-hour SLURM wall time limit and were cancelled (tasks 3, 4, 10, 13, 14, 15 — pairs SRR11352508_vs_SRR11392160, SRR11352509_vs_SRR11392161, SRR11352515_vs_SRR11392166, SRR11352518_vs_SRR11392169, SRR11352519_vs_SRR11392171, SRR11352520_vs_SRR11392181). Most pairs completed in 18–21 hours; these 6 exceeded the limit. Resolved by resubmitting all 6 via a dedicated script (`01_mutect2_rerun_timeouts.sh`) with a 48-hour time limit.
 
 ---
 
