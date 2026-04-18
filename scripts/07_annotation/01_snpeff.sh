@@ -11,6 +11,7 @@
 #SBATCH --array=1-26%8
 
 module load snpEff/4.3q
+module load htslib
 
 PROJ=/scratch/sballas/ISG5312FinalProject
 VCFDIR=${PROJ}/results/05_variantCalling/filtered
