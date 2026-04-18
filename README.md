@@ -10,13 +10,13 @@
 
 ## Overview
 
-> **[PENDING — complete after downstream analysis]**
+> **[PENDING]**
 
 ---
 
 ## Introduction
 
-> **[PENDING — complete after downstream analysis]**
+> **[PENDING]**
 
 ---
 
