@@ -14,8 +14,11 @@ module load GATK/4.3.0.0
 
 PROJ=/scratch/sballas/ISG5312FinalProject
 VCFDIR=${PROJ}/results/05_variantCalling/mutect2
+OUTDIR=${PROJ}/results/06_filteringAnnotating
 REF=${PROJ}/genome/CanFam3.1.fa
 PAIRS=${PROJ}/scripts/05_variantCalling/tumor_normal_pairs.txt
+
+mkdir -p ${OUTDIR}
 
 PAIR_LINE=$(sed -n "${SLURM_ARRAY_TASK_ID}p" ${PAIRS})
 TUMOR=$(echo  ${PAIR_LINE} | awk '{print $1}')
@@ -26,19 +29,19 @@ echo "Filtering: ${PAIR_NAME}"
 
 gatk LearnReadOrientationModel \
     -I ${VCFDIR}/${PAIR_NAME}.f1r2.tar.gz \
-    -O ${VCFDIR}/${PAIR_NAME}.read-orientation-model.tar.gz
+    -O ${OUTDIR}/${PAIR_NAME}.read-orientation-model.tar.gz
 
 gatk FilterMutectCalls \
     -R ${REF} \
     -V ${VCFDIR}/${PAIR_NAME}.unfiltered.vcf.gz \
-    --ob-priors ${VCFDIR}/${PAIR_NAME}.read-orientation-model.tar.gz \
-    -O ${VCFDIR}/${PAIR_NAME}.filtered.vcf.gz
+    --ob-priors ${OUTDIR}/${PAIR_NAME}.read-orientation-model.tar.gz \
+    -O ${OUTDIR}/${PAIR_NAME}.filtered.vcf.gz
 
 gatk SelectVariants \
     -R ${REF} \
-    -V ${VCFDIR}/${PAIR_NAME}.filtered.vcf.gz \
+    -V ${OUTDIR}/${PAIR_NAME}.filtered.vcf.gz \
     --exclude-filtered \
-    -O ${VCFDIR}/${PAIR_NAME}.PASS.vcf.gz
+    -O ${OUTDIR}/${PAIR_NAME}.PASS.vcf.gz
 
-PASS_COUNT=$(zcat ${VCFDIR}/${PAIR_NAME}.PASS.vcf.gz | grep -v "^#" | wc -l)
+PASS_COUNT=$(zcat ${OUTDIR}/${PAIR_NAME}.PASS.vcf.gz | grep -v "^#" | wc -l)
 echo "PASS variants for ${PAIR_NAME}: ${PASS_COUNT}"
