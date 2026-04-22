@@ -14,7 +14,7 @@ module load snpEff/4.3q
 module load htslib
 
 PROJ=/scratch/sballas/ISG5312FinalProject
-VCFDIR=${PROJ}/results/05_variantCalling/filtered
+VCFDIR=${PROJ}/results/06_filteringAnnotating
 OUTDIR=${PROJ}/results/07_annotation/snpeff
 PAIRS=${PROJ}/scripts/05_variantCalling/tumor_normal_pairs.txt
 SNPEFF_JAR=/isg/shared/apps/snpEff/4.3q/snpEff.jar
