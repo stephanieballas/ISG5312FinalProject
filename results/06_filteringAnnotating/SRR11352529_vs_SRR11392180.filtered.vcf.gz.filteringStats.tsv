@@ -1,0 +1,38 @@
+#<METADATA>Ln prior of deletion of length 10=-14.540383013180554
+#<METADATA>Ln prior of deletion of length 9=-14.3192969119284
+#<METADATA>Ln prior of deletion of length 8=-14.484601666298467
+#<METADATA>Ln prior of deletion of length 7=-14.476860100983878
+#<METADATA>Ln prior of deletion of length 6=-13.366257181316488
+#<METADATA>Ln prior of deletion of length 5=-13.725380266112737
+#<METADATA>Ln prior of deletion of length 4=-13.037309262619605
+#<METADATA>Ln prior of deletion of length 3=-12.604266149253265
+#<METADATA>Ln prior of deletion of length 2=-12.257188957693518
+#<METADATA>Ln prior of deletion of length 1=-11.303806901734658
+#<METADATA>Ln prior of SNV=-7.791401859212642
+#<METADATA>Ln prior of insertion of length 1=-11.340338411394054
+#<METADATA>Ln prior of insertion of length 2=-12.47249707964101
+#<METADATA>Ln prior of insertion of length 3=-12.794469847196044
+#<METADATA>Ln prior of insertion of length 4=-13.04628610273787
+#<METADATA>Ln prior of insertion of length 5=-13.75255154766747
+#<METADATA>Ln prior of insertion of length 6=-13.505288653554631
+#<METADATA>Ln prior of insertion of length 7=-14.372951601222944
+#<METADATA>Ln prior of insertion of length 8=-14.600358979574382
+#<METADATA>Ln prior of insertion of length 9=-14.380084289725211
+#<METADATA>Ln prior of insertion of length 10=-15.124482784838605
+#<METADATA>Background beta-binomial cluster=weight = 0.4662, alpha = 1.51, beta = 5.15
+#<METADATA>High-AF beta-binomial cluster=weight = 0.2431, alpha = 9.98, beta = 1.85
+#<METADATA>Binomial cluster=weight = 0.1302, mean = 0.465
+#<METADATA>Binomial cluster=weight = 0.0925, mean = 0.628
+#<METADATA>Binomial cluster=weight = 0.0347, mean = 0.400
+#<METADATA>Binomial cluster=weight = 0.0333, mean = 0.523
+#<METADATA>threshold=0.527
+#<METADATA>fdr=0.068
+#<METADATA>sensitivity=0.96
+filter	FP	FDR	FN	FNR
+weak_evidence	1621.13	0.02	1664.28	0.02
+strand_bias	3005.86	0.04	619.05	0.01
+normal_artifact	93.12	0.0	249.34	0.0
+orientation	330.58	0.0	23.28	0.0
+slippage	50.51	0.0	59.21	0.0
+haplotype	238.86	0.0	68.16	0.0
+germline	10.52	0.0	0.0	0.0

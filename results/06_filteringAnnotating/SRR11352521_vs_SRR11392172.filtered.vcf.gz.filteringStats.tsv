@@ -1,0 +1,37 @@
+#<METADATA>Ln prior of deletion of length 10=-15.913891354724337
+#<METADATA>Ln prior of deletion of length 9=-16.07228867385769
+#<METADATA>Ln prior of deletion of length 8=-15.796945422513996
+#<METADATA>Ln prior of deletion of length 7=-15.852188240154371
+#<METADATA>Ln prior of deletion of length 6=-15.07297629814732
+#<METADATA>Ln prior of deletion of length 5=-15.184553311783928
+#<METADATA>Ln prior of deletion of length 4=-14.474193245021631
+#<METADATA>Ln prior of deletion of length 3=-13.968107402533448
+#<METADATA>Ln prior of deletion of length 2=-13.587327636494468
+#<METADATA>Ln prior of deletion of length 1=-12.836682392048695
+#<METADATA>Ln prior of SNV=-8.821523635906104
+#<METADATA>Ln prior of insertion of length 1=-12.937825814950594
+#<METADATA>Ln prior of insertion of length 2=-13.660023393196498
+#<METADATA>Ln prior of insertion of length 3=-13.926613092822166
+#<METADATA>Ln prior of insertion of length 4=-14.170638848077939
+#<METADATA>Ln prior of insertion of length 5=-15.006320439706867
+#<METADATA>Ln prior of insertion of length 6=-14.50475166615966
+#<METADATA>Ln prior of insertion of length 7=-15.815514977170071
+#<METADATA>Ln prior of insertion of length 8=-15.98079843497495
+#<METADATA>Ln prior of insertion of length 9=-15.345316919287997
+#<METADATA>Ln prior of insertion of length 10=-16.76129363773451
+#<METADATA>Background beta-binomial cluster=weight = 0.4253, alpha = 5.01, beta = 40.61
+#<METADATA>High-AF beta-binomial cluster=weight = 0.0032, alpha = 7.84, beta = 7.53
+#<METADATA>Binomial cluster=weight = 0.2561, mean = 0.053
+#<METADATA>Binomial cluster=weight = 0.1843, mean = 0.032
+#<METADATA>Binomial cluster=weight = 0.1312, mean = 0.080
+#<METADATA>threshold=0.544
+#<METADATA>fdr=0.108
+#<METADATA>sensitivity=0.932
+filter	FP	FDR	FN	FNR
+weak_evidence	557.26	0.02	519.95	0.02
+strand_bias	2834.16	0.08	996.62	0.03
+normal_artifact	191.25	0.01	425.63	0.01
+orientation	276.81	0.01	9.72	0.0
+slippage	0.0	0.0	0.29	0.0
+haplotype	216.44	0.01	56.3	0.0
+germline	9.73	0.0	0.8	0.0
