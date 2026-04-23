@@ -27,14 +27,14 @@ NORMAL=$(echo ${PAIR_LINE} | awk '{print $2}')
 PAIR_NAME="${TUMOR}_vs_${NORMAL}"
 
 echo "Annotating: ${PAIR_NAME}"
-java -Xmx12g -jar ${SNPEFF_JAR} \
+java -Xmx12g -jar ${SNPEFF_JAR} -dataDir /scratch/sballas/snpEff_data \
     -v \
     -stats ${OUTDIR}/${PAIR_NAME}.snpeff_stats.html \
     CanFam3.1.86 \
     ${VCFDIR}/${PAIR_NAME}.PASS.vcf.gz \
     > ${OUTDIR}/${PAIR_NAME}.annotated.vcf
 
-bgzip ${OUTDIR}/${PAIR_NAME}.annotated.vcf
-tabix -p vcf ${OUTDIR}/${PAIR_NAME}.annotated.vcf.gz
+bgzip -f ${OUTDIR}/${PAIR_NAME}.annotated.vcf
+tabix -f -p vcf ${OUTDIR}/${PAIR_NAME}.annotated.vcf.gz
 
 echo "Done: ${PAIR_NAME}"
