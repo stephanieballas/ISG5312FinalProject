@@ -1,16 +1,16 @@
 # ISG5312 Final Project
 ## Somatic Variant Calling in Canine Osteosarcoma
-### Reproduction of Das et al. (2021), *Communications Biology* 4:1178
+### Reproduction of Das et al. (2021), Communications Biology 4:1178
 
 **Student:** Stephanie Ballas  
 **Repository:** stephanieballas/ISG5312FinalProject  
-**Cluster:** UConn Xanadu HPC
+**Cluster:** UConn Xanadu HPC  
 
 ---
 
 ## Overview
 
-> **[PENDING]**
+This project is a conceptual reproduction of Das et al. (2021), a whole exome sequencing (WES) study of 26 paired tumor-normal canine osteosarcoma samples. The pipeline follows GATK best practices for somatic variant discovery, from raw FASTQ files through functional annotation and downstream analysis. Four figures from the original paper were reproduced: Fig 1a (variant counts by DFI), Fig 1b (mutation type distribution), Fig 2a (oncoprint of top mutated genes), and Fig 6a (Kaplan-Meier survival analysis by TP53 mutation status).
 
 ---
 
@@ -22,29 +22,32 @@ This pipeline re-analyzes the same publicly available raw sequencing data, follo
 
 > **Note:** This project was originally planned around a human glioblastoma dataset, but that dataset required dbGaP controlled access. After failing to identify a suitable publicly available human WES dataset, the project was redirected to this canine osteosarcoma WES dataset, which is fully public and well-documented.
 
-### Reproduction Targets
+---
+
+## Reproduction Targets
+
 - Somatic SNV and indel calling across 26 matched tumor-normal WES pairs
 - Identification of recurrently mutated genes (especially TP53 and SETD2)
 - Mutation frequency summary and oncoprint visualization
-- TP53 mutation status comparison across samples
+- TP53 mutation status comparison across samples and association with disease-free interval
 
-### Dataset
+---
+
+## Dataset
 
 | Feature | Details |
 |---|---|
-| Species | *Canis lupus familiaris* (dog) |
-| Tissue | Osteosarcoma tumor + matched peripheral blood normal |
+| Species | Canis lupus familiaris (dog) |
+| Tissue | Osteosarcoma tumor + matched peripheral blood/stroma normal |
 | Sequencing | Paired-end WES, 151 bp, Illumina HiSeq 4000 |
 | Tumor samples | 27 samples — BioProject PRJNA613479 (SRR11352506–SRR11352532) |
 | Normal samples | 26 samples — BioProject PRJNA503860 (SRR11392157–SRR11392182, excluding SRR11392176) |
-| Tumor-normal pairs analyzed | 26 (see Limitations) |
+| Tumor-normal pairs analyzed | 24 (see Limitations) |
 | Reference genome | CanFam3.1 (Ensembl release 104) |
 
 ---
 
-## Methods
-
-### Repository Structure
+## Repository Structure
 
 ```
 ISG5312FinalProject/
@@ -70,9 +73,19 @@ ISG5312FinalProject/
 │   │   ├── 01_mutect2.sh                     # GATK Mutect2 paired mode (array job, %4)
 │   │   ├── 01_mutect2_rerun_timeouts.sh      # Rerun of 6 pairs that exceeded 24hr wall time
 │   │   ├── 02_mutect2_rerun_f1r2.sh          # Rerun of 8 pairs missing f1r2 output
-│   │   └── 02_filterMutect.sh                # LearnReadOrientationModel + FilterMutectCalls
-│   └── 07_annotation/
-│       └── 01_snpeff.sh                      # SnpEff annotation (CanFam3.1.86 database)
+│   │   ├── 03_mutect2_rerun_520.sh           # 72hr rerun for SRR11352520 (timed out)
+│   │   └── 04_mutect2_rerun_532.sh           # 72hr rerun for SRR11352532 (timed out)
+│   ├── 06_filteringAnnotating/
+│   │   └── 01_filter_mutect.sh               # LearnReadOrientationModel + FilterMutectCalls + SelectVariants
+│   ├── 07_annotation/
+│   │   └── 01_snpeff.sh                      # SnpEff annotation (CanFam3.1.86 database)
+│   └── 08_analysis/
+│       ├── 01_parse_snpeff.py                # Parse SnpEff annotated VCFs to TSV
+│       └── analysis.R                        # R script for all figures
+├── resources/
+│   ├── SRR_to_TID_mapping.txt               # SRR accession to tumor ID mapping
+│   ├── SRR_normals_mapping.txt              # SRR accession to normal ID mapping
+│   └── sample_metadata.txt                  # Sample metadata with DFI and clinical data
 └── results/
     ├── 02_qc/
     │   ├── fastqc_raw/                       # Per-sample raw FastQC HTML reports
@@ -82,15 +95,23 @@ ISG5312FinalProject/
     ├── 04_alignQC/
     │   └── samstats/                         # Per-sample flagstat outputs + MultiQC report
     ├── 05_variantCalling/
-    │   ├── mutect2/                          # Per-pair unfiltered VCFs + f1r2 tar.gz files
-    │   └── filtered/                         # Filtered VCFs and PASS-only VCFs
-    └── 07_annotation/
-        └── snpeff/                           # Per-pair annotated VCFs + SnpEff HTML stats
+    │   └── mutect2/                          # Per-pair unfiltered VCFs + f1r2 tar.gz files
+    ├── 06_filteringAnnotating/               # Filtered VCFs and PASS-only VCFs
+    ├── 07_annotation/
+    │   └── snpeff/                           # Per-pair SnpEff HTML stats and genes files
+    └── 08_analysis/
+        ├── all_variants_annotated.tsv        # Parsed variant table (282k variants)
+        ├── fig1a_variant_counts.png          # Fig 1a reproduction
+        ├── fig1b_mutation_types.png          # Fig 1b reproduction
+        ├── fig2a_oncoprint.png               # Fig 2a reproduction
+        └── fig6a_KM_TP53_status.png          # Fig 6a reproduction
 ```
 
-> **Note:** Large files (FASTQs, BAMs, VCF.gz, genome files) are excluded from git via `.gitignore`. Only scripts, summary reports, and text-based results are tracked.
+> **Note:** Large files (FASTQs, BAMs, VCF.gz, genome files) are excluded from git via .gitignore. Only scripts, summary reports, and text-based results are tracked.
 
 ---
+
+## Methods
 
 ### Step 1 — Data Download
 
@@ -102,7 +123,7 @@ fasterq-dump --split-files ${SRR}
 ```
 
 **Tools:** SRA Toolkit 3.0.5  
-**Script:** `scripts/01_download/01_download_fastq.sh`
+**Script:** scripts/01_download/01_download_fastq.sh
 
 ---
 
@@ -130,15 +151,15 @@ MINLEN:36
 Post-trimming MultiQC confirmed successful adapter removal across all samples.
 
 **Tools:** FastQC 0.11.x, Trimmomatic 0.39, MultiQC  
-**Scripts:** `scripts/02_qc/`
+**Scripts:** scripts/02_qc/
 
-> **Challenge:** SRR11352519 produced corrupted truncated trimmed FASTQ files on the initial run. The raw files were verified as intact (9.6G + 11G), and Trimmomatic was rerun on this sample alone via `03b_retrim_SRR11352519.sh` to regenerate valid output.
+> **Challenge:** SRR11352519 produced corrupted truncated trimmed FASTQ files on the initial run. The raw files were verified as intact, and Trimmomatic was rerun on this sample alone via 03b_retrim_SRR11352519.sh.
 
 ---
 
 ### Step 3 — Alignment
 
-All 53 trimmed samples were aligned to the CanFam3.1 reference genome (Ensembl release 104) using BWA-MEM. Read group tags (`@RG`) were included as required for downstream GATK tools. Aligned reads were coordinate-sorted with samtools, then duplicate reads were flagged using GATK MarkDuplicates.
+All 53 trimmed samples were aligned to the CanFam3.1 reference genome (Ensembl release 104) using BWA-MEM. Read group tags were included as required for GATK. Aligned reads were coordinate-sorted with samtools, then duplicates were flagged using GATK MarkDuplicates.
 
 ```bash
 bwa mem -t 8 -R "@RG\tID:${SAMPLE}\tSM:${SAMPLE}\tPL:ILLUMINA\tLB:lib1" \
@@ -149,12 +170,12 @@ gatk MarkDuplicates -I ${SAMPLE}.sorted.bam -O ${SAMPLE}.markdup.bam \
 ```
 
 **Tools:** BWA 0.7.17, samtools 1.12, GATK 4.3.0.0  
-**Scripts:** `scripts/03_alignment/`
+**Scripts:** scripts/03_alignment/
 
-> **Challenges encountered:**
-> - **Reference genome download failure:** `wget` was blocked by the Ensembl FTP server on Xanadu. Resolved by switching to `curl` with the correct Ensembl release-104 URL.
-> - **Disk space errors:** 19 of 53 samples failed mid-alignment with "No space left on device" due to simultaneous temporary file writes at high concurrency. Resolved by reducing SLURM array concurrency from `%12` to `%6`.
-> - **Corrupted BAMs:** 3 samples (SRR11352526, SRR11352527, SRR11392159) produced corrupted BAM files from the disk issue and required full re-alignment after the concurrency fix.
+> **Challenges:**
+> - Reference genome download failure: wget was blocked by the Ensembl FTP server on Xanadu. Resolved by switching to curl with the correct Ensembl release-104 URL.
+> - Disk space errors: 19 of 53 samples failed mid-alignment with "No space left on device." Resolved by reducing SLURM array concurrency from %12 to %6.
+> - Corrupted BAMs: 3 samples (SRR11352526, SRR11352527, SRR11392159) required full re-alignment after the disk space issue was resolved.
 
 ---
 
@@ -163,7 +184,7 @@ gatk MarkDuplicates -I ${SAMPLE}.sorted.bam -O ${SAMPLE}.markdup.bam \
 Post-alignment QC was run on all 53 final BAM files using samtools flagstat, aggregated with MultiQC.
 
 **Tools:** samtools 1.12, MultiQC  
-**Script:** `scripts/04_alignQC/01_alignQC.sh`
+**Script:** scripts/04_alignQC/01_alignQC.sh
 
 ---
 
@@ -182,70 +203,149 @@ gatk Mutect2 \
 ```
 
 **Tools:** GATK 4.3.0.0  
-**Scripts:** `scripts/05_variantCalling/01_mutect2.sh`
+**Scripts:** scripts/05_variantCalling/
 
-> **Challenges encountered:**
-> - **Mutect2 timeouts:** 6 of 26 pairs exceeded the initial 24-hour SLURM wall time limit (pairs SRR11352508_vs_SRR11392160, SRR11352509_vs_SRR11392161, SRR11352515_vs_SRR11392166, SRR11352518_vs_SRR11392169, SRR11352519_vs_SRR11392171, SRR11352520_vs_SRR11392181). Most pairs completed in 18–21 hours. Resolved by resubmitting all 6 via `01_mutect2_rerun_timeouts.sh` with a 48-hour wall time limit.
-> - **Missing f1r2 output:** 8 of 26 pairs (SRR11352518, SRR11352520, SRR11352522, SRR11352524, SRR11352528, SRR11352529, SRR11352531, SRR11352532 vs. their matched normals) were missing `f1r2.tar.gz` files. This was caused by two bugs: an initial job that concatenated tumor and normal IDs instead of separating them, and a subsequent rerun job submitted without the `--f1r2-tar-gz` flag. Resolved by rerunning all 8 pairs via `02_mutect2_rerun_f1r2.sh`.
+> **Challenges:**
+> - Mutect2 timeouts: 6 of 26 pairs exceeded the 24-hour wall time limit. Resolved by resubmitting with 48-hour limit via 01_mutect2_rerun_timeouts.sh.
+> - Missing f1r2 output: 8 of 26 pairs were missing f1r2.tar.gz files due to two scripting bugs. Resolved by rerunning all 8 via 02_mutect2_rerun_f1r2.sh.
+> - Corrupted VCFs: SRR11352520 and SRR11352532 produced corrupted VCFs. 72-hour reruns also timed out at chromosomes 15 and 12 respectively. Both samples were excluded from final analysis.
 
 ---
 
 ### Step 6 — Variant Filtering
 
-Unfiltered Mutect2 VCFs were processed in three steps:
-
-1. **LearnReadOrientationModel** — learns strand-specific artifact signatures from f1r2 data
-2. **FilterMutectCalls** — applies all Mutect2 filters plus the orientation bias model
-3. **SelectVariants** — extracts PASS-only variants for annotation
+PASS variants were identified using three steps: LearnReadOrientationModel, FilterMutectCalls, and SelectVariants.
 
 ```bash
-gatk LearnReadOrientationModel -I ${PAIR}.f1r2.tar.gz -O ${PAIR}.orientation-model.tar.gz
+gatk LearnReadOrientationModel \
+    -I ${PAIR}.f1r2.tar.gz \
+    -O ${PAIR}.orientation-model.tar.gz
 
-gatk FilterMutectCalls -R CanFam3.1.fa \
+gatk FilterMutectCalls \
+    -R CanFam3.1.fa \
     -V ${PAIR}.unfiltered.vcf.gz \
     --ob-priors ${PAIR}.orientation-model.tar.gz \
     -O ${PAIR}.filtered.vcf.gz
 
-gatk SelectVariants -V ${PAIR}.filtered.vcf.gz --exclude-filtered -O ${PAIR}.PASS.vcf.gz
+gatk SelectVariants \
+    -V ${PAIR}.filtered.vcf.gz \
+    --exclude-filtered \
+    -O ${PAIR}.PASS.vcf.gz
 ```
 
 **Tools:** GATK 4.3.0.0  
-**Script:** `scripts/05_variantCalling/02_filterMutect.sh`
+**Script:** scripts/06_filteringAnnotating/01_filter_mutect.sh
 
 ---
 
-### Step 7 — Functional Annotation *(In Progress)*
+### Step 7 — Functional Annotation
 
-PASS variants from all 26 pairs were annotated using SnpEff with the CanFam3.1.86 database. Annotations include predicted variant effects (missense, nonsense, splice site, frameshift, etc.), affected gene names, and impact classifications (HIGH / MODERATE / LOW / MODIFIER).
+PASS variants from all 24 valid pairs were annotated using SnpEff with the CanFam3.1.86 database.
 
 ```bash
 java -Xmx12g -jar snpEff.jar -v \
+    -dataDir /scratch/sballas/snpEff_data \
     -stats ${PAIR}.snpeff_stats.html \
     CanFam3.1.86 \
     ${PAIR}.PASS.vcf.gz > ${PAIR}.annotated.vcf
+bgzip -f ${PAIR}.annotated.vcf
+tabix -f -p vcf ${PAIR}.annotated.vcf.gz
 ```
 
 **Tools:** SnpEff 4.3q (database: CanFam3.1.86)  
-**Script:** `scripts/07_annotation/01_snpeff.sh`
+**Script:** scripts/07_annotation/01_snpeff.sh
+
+> **Challenges:**
+> - CanFam3.1.86 database not pre-installed on Xanadu and could not be written to the shared apps directory. Resolved by downloading to /scratch/sballas/snpEff_data/ and using the -dataDir flag.
+> - First run failed silently due to database issue. Second run produced empty VCFs because bgzip/tabix could not overwrite existing files. Resolved by deleting old outputs and adding the -f flag to bgzip and tabix.
 
 ---
 
-### Step 8 — Downstream Analysis *(In Progress)*
+### Step 8 — Downstream Analysis
 
-Annotated VCFs will be converted to MAF format and analyzed in R using maftools to generate:
+Annotated VCFs were parsed to a unified TSV using a Python script extracting gene name, variant effect, impact, and protein change per variant. Downstream analysis and figure generation was performed in R.
 
-- Per-tumor variant burden summary
-- Oncoprint of top mutated genes across all 26 samples
-- Lollipop plot of TP53 mutations
-- Comparison of mutation patterns between short- and long-survival groups
+```bash
+python3 scripts/08_analysis/01_parse_snpeff.py
+```
 
-**Tools:** R 4.x, maftools, ggplot2
+**Tools:** Python 3, R 4.5.1, ggplot2, survival, survminer, maftools  
+**Scripts:** scripts/08_analysis/
 
 ---
 
-### Software
+## Results
 
-| Software Tool | Version | Purpose |
+### Variant Calling
+Somatic variants were successfully called for 24 of 26 tumor-normal pairs. Two samples were excluded from final analysis (see Limitations). PASS variant counts per sample ranged from 154 (T-1272) to 72,444 (T-554), with a median of approximately 4,800 variants.
+
+### Mutation Landscape (Fig 1a, Fig 1b)
+Total somatic variant counts are substantially higher than reported in Das et al. because we used all PASS variants while the paper filtered to protein-coding variants only. Missense mutations were the most common coding variant type across all samples, consistent with the original paper.
+
+![Fig 1a](results/08_analysis/fig1a_variant_counts.png)
+![Fig 1b](results/08_analysis/fig1b_mutation_types.png)
+
+### Top Mutated Genes (Fig 2a)
+TP53 was the most frequently mutated gene at 83% of samples (20/24), consistent with Das et al. (85%). HSP90AA1 was also identified as recurrently mutated. Many other top genes were annotated with Ensembl IDs rather than named genes due to incomplete annotation in the CanFam3.1.86 SnpEff database, compared to Ensembl VEP v99 used by Das et al.
+
+![Fig 2a](results/08_analysis/fig2a_oncoprint.png)
+
+### TP53 Mutation Status and Survival (Fig 6a)
+Our Kaplan-Meier analysis of TP53 missense vs. WT/null status yielded p=0.79, which is not statistically significant. This contrasts with the paper's result of p=0.002. See Limitations for discussion.
+
+![Fig 6a](results/08_analysis/fig6a_KM_TP53_status.png)
+
+---
+
+## Conclusions
+
+This project successfully reproduced the general variant calling pipeline and key figures from Das et al. (2021) using publicly available data on UConn's Xanadu HPC cluster. TP53 was confirmed as the most frequently mutated gene at 83%, consistent with the paper. The mutation type distribution (missense-dominant) was also reproduced. The TP53 survival analysis did not reach significance in our hands (p=0.79 vs p=0.002), likely due to differences in variant filtering stringency, annotation tool choice, and the absence of BQSR. These discrepancies highlight how methodological differences — even within a broadly similar pipeline — can substantially affect biological conclusions.
+
+---
+
+## Limitations and Pipeline Challenges
+
+### Analytical Limitations (deviations from Das et al.)
+
+**BQSR skipped:** Base Quality Score Recalibration was omitted because Das et al. used an institutional known variants VCF (Canis_familiaris_V89.vcf) from Colorado State University that is not publicly available. The pipeline proceeds directly from MarkDuplicates to Mutect2. This may affect variant sensitivity.
+
+**T-343 excluded:** Tumor sample T-343 (SRR11352525) was excluded from variant calling because its matched normal N-343 (SRR11392176) was not available in the SRA repository. This reduces the analyzable cohort from 27 to 26 pairs.
+
+**SRR11352520 (T-1087) and SRR11352532 (M-1166) excluded:** Both samples had corrupted Mutect2 VCFs. 72-hour reruns timed out at chromosomes 15 and 12 respectively. T-1087 is a primary tumor; its exclusion reduces the primary tumor cohort to 24 samples. M-1166 is a metastatic sample treated separately in the original paper.
+
+**Fig 1a variant counts higher than paper:** Our variant counts are substantially higher than Das et al. because we used all PASS variants while the paper filtered to protein-coding variants only before counting.
+
+**Fig 6a KM plot not significant (p=0.79 vs p=0.002):** Several factors likely contributed:
+1. PASS filtering removed some TP53 variants — T-29C has no TP53 coding variants in our data but is classified as missense in the paper
+2. We lacked allele frequency data to select the dominant TP53 mutation per sample as Das et al. did
+3. BQSR was skipped which may affect variant sensitivity
+4. Our cohort is n=24 vs the paper's n=26
+
+**Annotation differences:** Das et al. used Ensembl VEP v99 for annotation, while this project used SnpEff 4.3q with the CanFam3.1.86 database. SnpEff produced fewer named gene annotations, limiting the cancer gene census comparison in Fig 2a.
+
+**Dataset change:** This project was originally planned around a human glioblastoma WES dataset requiring dbGaP access. After failing to obtain access, the project was redirected to this canine osteosarcoma dataset.
+
+### Technical Challenges Encountered During Pipeline Execution
+
+**Reference genome download failure:** wget was blocked by the Ensembl FTP server on Xanadu. Resolved by switching to curl with the correct Ensembl release-104 URL.
+
+**SRR11352519 truncated trimming:** Initial Trimmomatic run produced corrupted truncated FASTQ files. The sample was re-trimmed individually using 03b_retrim_SRR11352519.sh.
+
+**19/53 alignment jobs failed with disk space error:** High concurrency caused "No space left on device" errors. Resolved by reducing SLURM array concurrency from %12 to %6.
+
+**Three corrupted BAM files:** Samples SRR11352526, SRR11352527, and SRR11392159 required full re-alignment after the disk space issue was resolved.
+
+**Mutect2 timeouts:** 6 of 26 pairs exceeded the 24-hour wall time limit. Resolved by resubmitting with 48-hour limit via 01_mutect2_rerun_timeouts.sh.
+
+**Missing f1r2 output (8 pairs):** 8 of 26 pairs were missing f1r2.tar.gz files due to two scripting bugs. Resolved by rerunning all 8 via 02_mutect2_rerun_f1r2.sh.
+
+**SnpEff database installation:** CanFam3.1.86 was not pre-installed on Xanadu. Resolved by downloading to /scratch/sballas/snpEff_data/ and using -dataDir flag. First run failed silently; second run produced empty VCFs due to bgzip/tabix overwrite issue. Resolved by deleting old outputs and adding -f flag.
+
+---
+
+## Software
+
+| Tool | Version | Purpose |
 |---|---|---|
 | SRA Toolkit | 3.0.5 | FASTQ download |
 | FastQC | 0.11.x | Read quality assessment |
@@ -255,49 +355,13 @@ Annotated VCFs will be converted to MAF format and analyzed in R using maftools 
 | samtools | 1.12 | BAM sorting, indexing, flagstat |
 | GATK | 4.3.0.0 | MarkDuplicates, Mutect2, FilterMutectCalls |
 | SnpEff | 4.3q | Variant functional annotation |
-| R / maftools | 4.x | Downstream mutation analysis |
+| Python | 3.x | VCF parsing |
+| R | 4.5.1 | Downstream analysis and figures |
+| ggplot2 | 4.0.3 | Visualization |
+| maftools | 2.26.0 | Oncoprint and MAF analysis |
+| survival/survminer | 3.8/0.5 | Kaplan-Meier analysis |
 
 All jobs were run on UConn Xanadu HPC using SLURM (general partition, general QOS).
-
----
-
-## Results
-
-> **[PENDING]**
-
----
-
-## Conclusions
-
-> **[PENDING]**
-
----
-
-## Limitations and Pipeline Challenges
-
-### Analytical Limitations (deviations from Das et al.)
-
-**BQSR skipped:** Base Quality Score Recalibration was omitted because Das et al. used an institutional known variants VCF (`Canis_familiaris_V89.vcf`) from Colorado State University that is not publicly available. The pipeline proceeds directly from MarkDuplicates to Mutect2. This may result in slightly less accurate base quality scores than the original study.
-
-**T-343 excluded:** Tumor sample T-343 (SRR11352525) was excluded from variant calling because its matched normal N-343 (SRR11392176) was not available in the SRA repository at the time of download. This reduces the cohort from the 27 tumor samples described in Das et al. to **26 analyzable tumor-normal pairs**.
-
-**Dataset change:** This project was originally planned around a human glioblastoma WES dataset. That dataset required dbGaP controlled access, which was not available. After failing to identify a suitable publicly accessible human dataset, the project was redirected to this canine osteosarcoma WES dataset.
-
-### Technical Challenges Encountered During Pipeline Execution
-
-**Reference genome download failure:** The initial attempt to download the CanFam3.1 reference genome using `wget` failed silently because Ensembl FTP connections were blocked on the Xanadu cluster. Resolved by switching to `curl` and identifying the correct Ensembl release-104 URL.
-
-**SRR11352519 truncated trimming:** The initial Trimmomatic run for sample SRR11352519 produced corrupted truncated FASTQ files, causing FastQC to fail. The raw files were verified as intact and the sample was re-trimmed individually using a dedicated script (`03b_retrim_SRR11352519.sh`).
-
-**19/53 alignment jobs failed with disk space error:** During the initial BWA-MEM alignment run, 19 of 53 samples failed mid-job with "No space left on device." This was caused by many jobs writing large temporary files to shared disk simultaneously at high concurrency. Resolved by resubmitting with reduced SLURM array concurrency (`%6` instead of `%12`).
-
-**Three corrupted BAM files:** Samples SRR11352526, SRR11352527, and SRR11392159 produced corrupted BAM files as a result of the disk space failure above. These required full re-alignment after the concurrency issue was resolved. All three were successfully re-aligned and verified before downstream processing.
-
-**Scale of the dataset:** Working with 53 samples meant that any scripting error — even minor ones — required identifying the problem, correcting the script, and resubmitting the full array before the pipeline could continue. This added significant debugging time at nearly every step.
-
-**Mutect2 timeouts:** 6 of 26 tumor-normal pairs exceeded the initial 24-hour SLURM wall time limit and were cancelled (pairs SRR11352508_vs_SRR11392160, SRR11352509_vs_SRR11392161, SRR11352515_vs_SRR11392166, SRR11352518_vs_SRR11392169, SRR11352519_vs_SRR11392171, SRR11352520_vs_SRR11392181). Most pairs completed in 18–21 hours; these 6 exceeded the limit. Resolved by resubmitting all 6 via `01_mutect2_rerun_timeouts.sh` with a 48-hour time limit.
-
-**Missing f1r2 output (8 pairs):** 8 of 26 pairs were missing `f1r2.tar.gz` files required for orientation bias filtering. This was caused by two separate scripting bugs: one job that incorrectly concatenated tumor and normal SRR IDs, and a subsequent rerun submitted without the `--f1r2-tar-gz` flag. Resolved by rerunning all 8 affected pairs via `02_mutect2_rerun_f1r2.sh`.
 
 ---
 
