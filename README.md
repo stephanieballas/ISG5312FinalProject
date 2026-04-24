@@ -112,16 +112,12 @@ ISG5312FinalProject/
 ---
 
 ## Methods
-
 ### Step 1 — Data Download
-
 Raw FASTQ files were downloaded from NCBI SRA using SRA Toolkit for all 53 samples across both BioProjects.
-
 ```bash
 prefetch ${SRR}
 fasterq-dump --split-files ${SRR}
 ```
-
 **Tools:** SRA Toolkit 3.0.5  
 **Script:** scripts/01_download/01_download_fastq.sh
 
@@ -130,16 +126,32 @@ fasterq-dump --split-files ${SRR}
 ### Step 2 — Quality Control and Trimming
 
 Pre-trimming FastQC was run on all 53 samples (27 tumor + 26 normal). Key observations:
-
 - All samples: 151 bp paired-end reads
 - Raw read counts: ~98M–181M reads per sample
 - GC content: 50–55%, consistent with WES data
 - Duplication rates: 37%–70% (elevated; expected for WES hybrid capture enrichment)
 - Widespread flags for Sequence Duplication, Overrepresented Sequences, and Per Base Sequence Content
-- Adapter content flags in ~4 samples pre-trimming
+- Adapter content flags confirmed trimming was necessary
+
+**Sequence Counts (pre-trimming)**  
+Total read counts ranged from ~100M to ~185M reads per sample. A high proportion of duplicate reads was observed across all samples, expected for WES due to PCR amplification and targeted capture enrichment.
+
+![Raw Sequence Counts](results/02_qc/figures/multiqc_raw_counts.png)
+
+**Sequence Duplication Levels (pre-trimming)**  
+FastQC flagged 23 samples with warnings and 31 with failures for sequence duplication. The characteristic peak at duplication level >10 is typical of capture-based WES and reflects enrichment of targeted regions rather than true library complexity issues. PCR duplicates are later flagged and removed by GATK MarkDuplicates.
+
+![Raw Sequence Duplication Levels](results/02_qc/figures/Multiqc_raw_sequenceduplication.png)
+
+**Status Checks (pre-trimming)**  
+- **Per Base Sequence Content** — warnings/failures expected due to non-random fragmentation at read ends
+- **Per Sequence GC Content** — deviations expected due to capture probe enrichment of specific regions
+- **Adapter Content** — widespread failures confirmed trimming was necessary
+- **Per Base Sequence Quality** and **Per Sequence Quality Scores** — all passed
+
+![Raw Status Checks](results/02_qc/figures/Multiqc_raw_statuschecks.png)
 
 Trimmomatic was run in paired-end mode with the following parameters:
-
 ```
 ILLUMINACLIP:TruSeq3-PE.fa:2:30:10
 LEADING:3
@@ -148,7 +160,23 @@ SLIDINGWINDOW:4:15
 MINLEN:36
 ```
 
-Post-trimming MultiQC confirmed successful adapter removal across all samples.
+**Sequence Counts (post-trimming)**  
+Read counts decreased modestly after trimming, indicating low-quality and adapter-contaminated reads were removed without aggressively discarding data.
+
+![Trimmed Sequence Counts](results/02_qc/figures/multiqc_trim_counts.png)
+
+**Sequence Duplication Levels (post-trimming)**  
+After trimming, duplication flags shifted to 35 warnings and 17 failures (from 23/31 pre-trimming), reflecting removal of short duplicated adapter fragments. Remaining flags are expected for WES.
+
+![Trimmed Sequence Duplication Levels](results/02_qc/figures/Multiqc_trim_sequenceduplication.png)
+
+**Status Checks (post-trimming)**  
+- **Adapter Content** — all samples now pass ✓
+- **Per Base Sequence Quality** and **Per Sequence Quality Scores** — all pass ✓
+- **Per Base Sequence Content** and **Per Sequence GC Content** — warnings persist, expected for WES
+- **Sequence Duplication** — warnings/failures persist, expected for WES
+
+![Trimmed Status Checks](results/02_qc/figures/Multiqc_trim_statuschecks.png)
 
 **Tools:** FastQC 0.11.x, Trimmomatic 0.39, MultiQC  
 **Scripts:** scripts/02_qc/
@@ -158,17 +186,13 @@ Post-trimming MultiQC confirmed successful adapter removal across all samples.
 ---
 
 ### Step 3 — Alignment
-
 All 53 trimmed samples were aligned to the CanFam3.1 reference genome (Ensembl release 104) using BWA-MEM. Read group tags were included as required for GATK. Aligned reads were coordinate-sorted with samtools, then duplicates were flagged using GATK MarkDuplicates.
-
 ```bash
 bwa mem -t 8 -R "@RG\tID:${SAMPLE}\tSM:${SAMPLE}\tPL:ILLUMINA\tLB:lib1" \
     CanFam3.1.fa ${R1} ${R2} | samtools sort -o ${SAMPLE}.sorted.bam
-
 gatk MarkDuplicates -I ${SAMPLE}.sorted.bam -O ${SAMPLE}.markdup.bam \
     -M ${SAMPLE}.markdup.metrics.txt
 ```
-
 **Tools:** BWA 0.7.17, samtools 1.12, GATK 4.3.0.0  
 **Scripts:** scripts/03_alignment/
 
@@ -180,7 +204,6 @@ gatk MarkDuplicates -I ${SAMPLE}.sorted.bam -O ${SAMPLE}.markdup.bam \
 ---
 
 ### Step 4 — Alignment QC
-
 Post-alignment QC was run on all 53 final BAM files using samtools flagstat, aggregated with MultiQC.
 
 **Tools:** samtools 1.12, MultiQC  
