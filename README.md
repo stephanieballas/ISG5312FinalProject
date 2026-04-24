@@ -1,6 +1,6 @@
 # ISG5312 Final Project
 ## Somatic Variant Calling in Canine Osteosarcoma
-### Reproduction of Das et al. (2021), Communications Biology 4:1178
+### Reproduction of Das et al. (2021)
 
 **Student:** Stephanie Ballas  
 **Repository:** stephanieballas/ISG5312FinalProject  
