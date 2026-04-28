@@ -16,9 +16,9 @@ This project is a conceptual reproduction of Das et al. (2021), a whole exome se
 
 ## Introduction
 
-This project is a conceptual reproduction of Das et al. (2021), a whole exome sequencing (WES) study of canine osteosarcoma. The original paper identifies recurrent somatic mutations across 26 paired tumor-normal samples and finds that TP53 missense mutations and immune pathway enrichment are associated with longer patient survival.
+This project is a reproduction of Das et al. (2021), a whole exome sequencing (WES) study of canine osteosarcoma. The original paper identifies recurrent somatic mutations across 26 paired tumor-normal samples and finds that TP53 missense mutations and immune pathway enrichment are associated with longer patient survival.
 
-This pipeline re-analyzes the same publicly available raw sequencing data, following GATK best practices for somatic short variant discovery, from raw FASTQ files through to functionally annotated variants.
+This pipeline re-analyzes the same publicly available raw sequencing data, from raw FASTQ files through to functionally annotated variants.
 
 > **Note:** This project was originally planned around a human glioblastoma dataset, but that dataset required dbGaP controlled access. After failing to identify a suitable publicly available human WES dataset, the project was redirected to this canine osteosarcoma WES dataset, which is fully public and well-documented.
 
@@ -171,8 +171,8 @@ After trimming, duplication flags shifted to 35 warnings and 17 failures (from 2
 ![Trimmed Sequence Duplication Levels](results/02_qc/figures/Multiqc_trim_sequenceduplication.png)
 
 **Status Checks (post-trimming)**  
-- **Adapter Content** — all samples now pass ✓
-- **Per Base Sequence Quality** and **Per Sequence Quality Scores** — all pass ✓
+- **Adapter Content** — all samples now pass 
+- **Per Base Sequence Quality** and **Per Sequence Quality Scores** — all pass 
 - **Per Base Sequence Content** and **Per Sequence GC Content** — warnings persist, expected for WES
 - **Sequence Duplication** — warnings/failures persist, expected for WES
 
@@ -322,7 +322,7 @@ Our Kaplan-Meier analysis of TP53 missense vs. WT/null status yielded p=0.79, wh
 
 ## Conclusions
 
-This project successfully reproduced the general variant calling pipeline and key figures from Das et al. (2021) using publicly available data on UConn's Xanadu HPC cluster. TP53 was confirmed as the most frequently mutated gene at 83%, consistent with the paper. The mutation type distribution (missense-dominant) was also reproduced. The TP53 survival analysis did not reach significance in our hands (p=0.79 vs p=0.002), likely due to differences in variant filtering stringency, annotation tool choice, and the absence of BQSR. These discrepancies highlight how methodological differences — even within a broadly similar pipeline — can substantially affect biological conclusions.
+This project successfully reproduced the general variant calling pipeline and key figures from Das et al. (2021) using publicly available data on UConn's Xanadu HPC cluster. TP53 was confirmed as the most frequently mutated gene at 83%, consistent with the paper. The mutation type distribution (missense-dominant) was also reproduced. The TP53 survival analysis did not reach significance in my reproduction (p=0.79 vs p=0.002), likely due to differences in variant filtering stringency, annotation tool choice, and the absence of BQSR. These discrepancies highlight how methodological differences, even within a broadly similar pipeline, can substantially affect biological conclusions.
 
 ---
 
